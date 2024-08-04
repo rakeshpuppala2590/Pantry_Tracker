@@ -166,8 +166,8 @@ export default function Cart() {
   // Fetch recipe suggestions
   const getRecipeSuggestions = async () => {
     const pantryItems = await getPantryItemsFromBackend();
-    const response = await fetchRecipeSuggestions(pantryItems);
-    const suggestions = response.split(/\d+\.\s+/).filter(Boolean); // Adjust if necessary
+    const suggestions = await fetchRecipeSuggestions(pantryItems);
+    console.log(suggestions);
     setRecipeSuggestions(suggestions);
   };
 
@@ -197,7 +197,7 @@ export default function Cart() {
       <main className="flex min-h-screen flex-col items-center justify-between p-24">
         <div className="z-10 max-w-5xl w-full font-mono text-sm">
           <h1 className="text-2xl p-4 text-center">
-            Add Available Items to Cart
+            Add Available items to cart
           </h1>
           <form
             className="grid grid-cols-4 items-center text-black"
@@ -241,7 +241,7 @@ export default function Cart() {
                 setNewItem({ ...newItem, quantity: e.target.value })
               }
               className="col-span-1 p-3 border mx-3"
-              placeholder="Enter Quantity"
+              placeholder="Enter Quant"
               type="number"
             />
             <button
@@ -289,12 +289,12 @@ export default function Cart() {
           {items.length > 0 && (
             <div className="flex justify-between p-3">
               <span>Total</span>
-              <span className="">${total.toFixed(2)}</span>
+              <span className="">${total}</span>
             </div>
           )}
           <button
             onClick={confirmChanges}
-            className="mt-4 p-3 bg-green-500 text-white hover:bg-green-600 "
+            className="mt-4 p-3 bg-green-500 text-white hover:bg-green-600"
           >
             Confirm Changes
           </button>

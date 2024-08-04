@@ -1,9 +1,11 @@
-"use client";
+"use client"; // Mark as a Client Component
+
 import React, { useState, useEffect } from "react";
 import { db } from "/Users/rakeshpuppala/pantry/src/app/firebase.js";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+
 import {
   collection,
   addDoc,
@@ -16,7 +18,6 @@ import {
 } from "firebase/firestore";
 import dayjs from "dayjs";
 import { Button } from "@mui/material";
-import fetchRecipeSuggestions from "/Users/rakeshpuppala/pantry/src/app/cart/recipe.js"; // Adjust the import path accordingly
 
 export default function Cart() {
   const [items, setItems] = useState([]);
@@ -30,10 +31,8 @@ export default function Cart() {
   const [removedItems, setRemovedItems] = useState(new Set());
   const [searchTerm, setSearchTerm] = useState("");
   const [dropdownSearchTerm, setDropdownSearchTerm] = useState("");
-  const [dropdownItemsVisible, setDropdownItemsVisible] = useState(false);
-  const [recipeSuggestions, setRecipeSuggestions] = useState([]);
 
-  // Fetch available items
+  // Get available items
   useEffect(() => {
     const fetchItems = async () => {
       const q = query(collection(db, "items"));
@@ -50,7 +49,7 @@ export default function Cart() {
     fetchItems();
   }, []);
 
-  // Filter available items based on search term
+  // Filter available items based on search term for the available items table
   useEffect(() => {
     const filteredItems = availableItems.filter((item) =>
       item.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -63,7 +62,7 @@ export default function Cart() {
     item.name.toLowerCase().includes(dropdownSearchTerm.toLowerCase())
   );
 
-  // Fetch cart items
+  // Get cart items
   useEffect(() => {
     const q = query(collection(db, "cart"));
 
@@ -88,7 +87,7 @@ export default function Cart() {
     return () => unsubscribe();
   }, []);
 
-  // Add item to cart
+  // Add Item to cart DB
   const addItem = async (e) => {
     e.preventDefault();
     if (newItem.name !== "" && newItem.quantity !== "") {
@@ -111,21 +110,19 @@ export default function Cart() {
         date: item.date ? item.date.toISOString() : null,
       });
 
-      setNewItem({ name: "", quantity: "" });
-      setDropdownSearchTerm(""); // Clear dropdown search term after adding item
-      setDropdownItemsVisible(false); // Hide dropdown after selection
+      setNewItem({ name: "", quantity: "", date: null });
     }
   };
 
-  // Delete item from cart
   const deleteItem = async (id) => {
+    // Remove item from the cart collection
     await deleteDoc(doc(db, "cart", id));
   };
 
-  // Confirm changes
   const confirmChanges = async () => {
     const batch = writeBatch(db);
 
+    // Update available items based on cart items
     for (const item of items) {
       const availableItem = availableItems.find(
         (availableItem) =>
@@ -138,8 +135,10 @@ export default function Cart() {
       }
     }
 
+    // Commit batch operations
     await batch.commit();
 
+    // Clear the cart collection
     const q = query(collection(db, "cart"));
     const querySnapshot = await getDocs(q);
     const batchDelete = writeBatch(db);
@@ -153,7 +152,6 @@ export default function Cart() {
     setRemovedItems(new Set());
   };
 
-  // Clear cart
   const clearCart = async () => {
     const batch = writeBatch(db);
     items.forEach((item) => {
@@ -163,31 +161,6 @@ export default function Cart() {
     setRemovedItems(new Set());
   };
 
-  // Fetch recipe suggestions
-  const getRecipeSuggestions = async () => {
-    const pantryItems = await getPantryItemsFromBackend();
-    const response = await fetchRecipeSuggestions(pantryItems);
-    const suggestions = response.split(/\d+\.\s+/).filter(Boolean); // Adjust if necessary
-    setRecipeSuggestions(suggestions);
-  };
-
-  // Backend function to fetch pantry items
-  const getPantryItemsFromBackend = async () => {
-    const q = query(collection(db, "items"));
-    const querySnapshot = await getDocs(q);
-    let itemsArr = [];
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
-      itemsArr.push(data.name);
-    });
-    return itemsArr;
-  };
-
-  useEffect(() => {
-    getRecipeSuggestions();
-  }, [items]);
-
-  // Check if the date is expired
   const isDateExpired = (date) => {
     return date && dayjs(date).isBefore(dayjs(), "day");
   };
@@ -197,43 +170,27 @@ export default function Cart() {
       <main className="flex min-h-screen flex-col items-center justify-between p-24">
         <div className="z-10 max-w-5xl w-full font-mono text-sm">
           <h1 className="text-2xl p-4 text-center">
-            Add Available Items to Cart
+            Add Available items to cart
           </h1>
           <form
             className="grid grid-cols-4 items-center text-black"
             onSubmit={addItem}
           >
             <div className="col-span-2 p-3 border relative">
-              <input
-                type="text"
-                value={dropdownSearchTerm}
-                onChange={(e) => {
-                  setDropdownSearchTerm(e.target.value);
-                  setDropdownItemsVisible(true);
-                }}
+              <select
+                value={newItem.name}
+                onChange={(e) =>
+                  setNewItem({ ...newItem, name: e.target.value })
+                }
                 className="w-full p-3 border mt-1"
-                placeholder="Item"
-              />
-              {dropdownItemsVisible && dropdownSearchTerm && (
-                <ul className="absolute z-10 w-full bg-white border mt-1">
-                  {filteredDropdownItems.map((item) => (
-                    <li
-                      key={item.id}
-                      className="p-2 hover:bg-gray-200 cursor-pointer"
-                      onClick={() => {
-                        setNewItem({
-                          ...newItem,
-                          name: item.name,
-                        });
-                        setDropdownSearchTerm(""); // Clear the dropdown search term
-                        setDropdownItemsVisible(false); // Hide the dropdown
-                      }}
-                    >
-                      {item.name}
-                    </li>
-                  ))}
-                </ul>
-              )}
+              >
+                <option value="">Select Item</option>
+                {filteredDropdownItems.map((item) => (
+                  <option key={item.id} value={item.name}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
             </div>
             <input
               value={newItem.quantity}
@@ -241,7 +198,7 @@ export default function Cart() {
                 setNewItem({ ...newItem, quantity: e.target.value })
               }
               className="col-span-1 p-3 border mx-3"
-              placeholder="Enter Quantity"
+              placeholder="Enter Quant"
               type="number"
             />
             <button
@@ -289,12 +246,12 @@ export default function Cart() {
           {items.length > 0 && (
             <div className="flex justify-between p-3">
               <span>Total</span>
-              <span className="">${total.toFixed(2)}</span>
+              <span className="">${total}</span>
             </div>
           )}
           <button
             onClick={confirmChanges}
-            className="mt-4 p-3 bg-green-500 text-white hover:bg-green-600 "
+            className="mt-4 p-3 bg-green-500 text-white hover:bg-green-600"
           >
             Confirm Changes
           </button>
@@ -304,16 +261,7 @@ export default function Cart() {
           >
             Clear Cart
           </button>
-          {/* Recipe Suggestions */}
-          <h1 className="text-2xl p-4 text-center">Recipe Suggestions</h1>
-          <div className="grid grid-cols-1 gap-4">
-            {recipeSuggestions.map((recipe, index) => (
-              <div key={index} className="bg-slate-800 p-4 rounded-lg">
-                <p className="text-white">{recipe}</p>
-              </div>
-            ))}
-          </div>
-          {/* Available items */}
+
           <h1 className="text-2xl p-4 text-center">Available Items</h1>
           <div className="mb-4">
             <input

@@ -194,7 +194,7 @@ export default function Cart() {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <main className="flex min-h-screen flex-col items-center justify-between p-24">
+      <main className="flex min-h-screen flex-col items-center justify-between p-24 background-image: linear-gradient(to top, var(--tw-gradient-stops));">
         <div className="z-10 max-w-5xl w-full font-mono text-sm">
           <h1 className="text-2xl p-4 text-center">
             Add Available Items to Cart

@@ -1,32 +1,9 @@
-"use client";
-import React, { useState, useEffect } from "react";
-import { db } from "/Users/rakeshpuppala/pantry/src/app/firebase.js";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import {
-  collection,
-  addDoc,
-  query,
-  getDocs,
-  onSnapshot,
-  deleteDoc,
-  doc,
-  writeBatch,
-} from "firebase/firestore";
-import dayjs from "dayjs";
-import { Button } from "@mui/material";
-import fetchRecipeSuggestions from "/Users/rakeshpuppala/pantry/src/app/cart/recipe.js"; // Adjust the import path accordingly
-
 export default function Cart() {
   const [items, setItems] = useState([]);
   const [availableItems, setAvailableItems] = useState([]);
   const [filteredAvailableItems, setFilteredAvailableItems] = useState([]);
   const [total, setTotal] = useState(0);
-  const [newItem, setNewItem] = useState({
-    name: "",
-    quantity: "",
-  });
+  const [newItem, setNewItem] = useState({ name: "", quantity: "" });
   const [removedItems, setRemovedItems] = useState(new Set());
   const [searchTerm, setSearchTerm] = useState("");
   const [dropdownSearchTerm, setDropdownSearchTerm] = useState("");
@@ -166,9 +143,13 @@ export default function Cart() {
   // Fetch recipe suggestions
   const getRecipeSuggestions = async () => {
     const pantryItems = await getPantryItemsFromBackend();
-    const response = await fetchRecipeSuggestions(pantryItems);
-    const suggestions = response.split(/\d+\.\s+/).filter(Boolean); // Adjust if necessary
-    setRecipeSuggestions(suggestions);
+    const suggestions = await fetchRecipeSuggestions(pantryItems);
+    if (Array.isArray(suggestions)) {
+      setRecipeSuggestions(suggestions);
+    } else {
+      console.error("Invalid recipe suggestions format:", suggestions);
+      setRecipeSuggestions([]);
+    }
   };
 
   // Backend function to fetch pantry items
@@ -197,7 +178,7 @@ export default function Cart() {
       <main className="flex min-h-screen flex-col items-center justify-between p-24">
         <div className="z-10 max-w-5xl w-full font-mono text-sm">
           <h1 className="text-2xl p-4 text-center">
-            Add Available Items to Cart
+            Add Available items to cart
           </h1>
           <form
             className="grid grid-cols-4 items-center text-black"
@@ -241,7 +222,7 @@ export default function Cart() {
                 setNewItem({ ...newItem, quantity: e.target.value })
               }
               className="col-span-1 p-3 border mx-3"
-              placeholder="Enter Quantity"
+              placeholder="Enter Quant"
               type="number"
             />
             <button
@@ -289,12 +270,12 @@ export default function Cart() {
           {items.length > 0 && (
             <div className="flex justify-between p-3">
               <span>Total</span>
-              <span className="">${total.toFixed(2)}</span>
+              <span className="">${total}</span>
             </div>
           )}
           <button
             onClick={confirmChanges}
-            className="mt-4 p-3 bg-green-500 text-white hover:bg-green-600 "
+            className="mt-4 p-3 bg-green-500 text-white hover:bg-green-600"
           >
             Confirm Changes
           </button>
@@ -307,11 +288,16 @@ export default function Cart() {
           {/* Recipe Suggestions */}
           <h1 className="text-2xl p-4 text-center">Recipe Suggestions</h1>
           <div className="grid grid-cols-1 gap-4">
-            {recipeSuggestions.map((recipe, index) => (
-              <div key={index} className="bg-slate-800 p-4 rounded-lg">
-                <p className="text-white">{recipe}</p>
-              </div>
-            ))}
+            {Array.isArray(recipeSuggestions) &&
+            recipeSuggestions.length > 0 ? (
+              recipeSuggestions.map((recipe, index) => (
+                <div key={index} className="bg-slate-800 p-4 rounded-lg">
+                  <p className="text-white">{recipe}</p>
+                </div>
+              ))
+            ) : (
+              <p className="text-white">No recipe suggestions available.</p>
+            )}
           </div>
           {/* Available items */}
           <h1 className="text-2xl p-4 text-center">Available Items</h1>

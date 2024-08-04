@@ -167,7 +167,7 @@ export default function Cart() {
   const getRecipeSuggestions = async () => {
     const pantryItems = await getPantryItemsFromBackend();
     const response = await fetchRecipeSuggestions(pantryItems);
-    const suggestions = response.split(/\d+\.\s+/).filter(Boolean); // Adjust if necessary
+    const suggestions = response.split(/\n\d+\.\s+/).filter(Boolean); // Adjust if necessary
     setRecipeSuggestions(suggestions);
   };
 
@@ -294,7 +294,7 @@ export default function Cart() {
           )}
           <button
             onClick={confirmChanges}
-            className="mt-4 p-3 bg-green-500 text-white hover:bg-green-600 "
+            className="mt-4 p-3 bg-green-500 text-white hover:bg-green-600"
           >
             Confirm Changes
           </button>

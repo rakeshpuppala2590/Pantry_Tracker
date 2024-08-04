@@ -18,9 +18,12 @@
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: url("/Users/rakeshpuppala/pantry/public/images/pantry_image.jpg")
-    no-repeat center center fixed;
-  background-size: cover; /* Adjust as needed */
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
 }
 
 @layer utilities {

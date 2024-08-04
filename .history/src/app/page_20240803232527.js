@@ -1,6 +1,4 @@
 "use client"; // Mark as a Client Component
-import * as dotenv from "dotenv";
-dotenv.config();
 
 import React, { useState, useEffect } from "react";
 import { db } from "./firebase";
@@ -144,10 +142,7 @@ export default function Home() {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <main
-        className="flex min-h-screen flex-col items-center justify-between p-24
-      "
-      >
+      <main className="flex min-h-screen flex-col items-center justify-between p-24">
         <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm ">
           <h1 className="text-4xl p-4 text-center">
             <strong>Pantry Tracker</strong>
@@ -201,7 +196,7 @@ export default function Home() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full p-3 border mb-4 text-black"
             />
-            <ul className="max-h-56 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-100">
+            <ul className="max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-100">
               {filteredItems.map((item, id) => (
                 <li
                   key={id}

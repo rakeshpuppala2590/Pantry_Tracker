@@ -1,4 +1,7 @@
 "use client";
+import * as dotenv from "dotenv";
+dotenv.config();
+
 import React, { useState, useEffect } from "react";
 import { db } from "/Users/rakeshpuppala/pantry/src/app/firebase.js";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -31,7 +34,7 @@ export default function Cart() {
   const [searchTerm, setSearchTerm] = useState("");
   const [dropdownSearchTerm, setDropdownSearchTerm] = useState("");
   const [dropdownItemsVisible, setDropdownItemsVisible] = useState(false);
-  const [recipeSuggestions, setRecipeSuggestions] = useState([]);
+  const [recipeSuggestions, setRecipeSuggestions] = useState("");
 
   // Fetch available items
   useEffect(() => {
@@ -165,9 +168,9 @@ export default function Cart() {
 
   // Fetch recipe suggestions
   const getRecipeSuggestions = async () => {
+    // Fetch pantry items from the backend
     const pantryItems = await getPantryItemsFromBackend();
-    const response = await fetchRecipeSuggestions(pantryItems);
-    const suggestions = response.split(/\d+\.\s+/).filter(Boolean); // Adjust if necessary
+    const suggestions = await fetchRecipeSuggestions(pantryItems);
     setRecipeSuggestions(suggestions);
   };
 
@@ -186,7 +189,6 @@ export default function Cart() {
   useEffect(() => {
     getRecipeSuggestions();
   }, [items]);
-
   // Check if the date is expired
   const isDateExpired = (date) => {
     return date && dayjs(date).isBefore(dayjs(), "day");
@@ -197,7 +199,7 @@ export default function Cart() {
       <main className="flex min-h-screen flex-col items-center justify-between p-24">
         <div className="z-10 max-w-5xl w-full font-mono text-sm">
           <h1 className="text-2xl p-4 text-center">
-            Add Available Items to Cart
+            Add Available items to cart
           </h1>
           <form
             className="grid grid-cols-4 items-center text-black"
@@ -241,7 +243,7 @@ export default function Cart() {
                 setNewItem({ ...newItem, quantity: e.target.value })
               }
               className="col-span-1 p-3 border mx-3"
-              placeholder="Enter Quantity"
+              placeholder="Enter Quant"
               type="number"
             />
             <button
@@ -289,12 +291,12 @@ export default function Cart() {
           {items.length > 0 && (
             <div className="flex justify-between p-3">
               <span>Total</span>
-              <span className="">${total.toFixed(2)}</span>
+              <span className="">${total}</span>
             </div>
           )}
           <button
             onClick={confirmChanges}
-            className="mt-4 p-3 bg-green-500 text-white hover:bg-green-600 "
+            className="mt-4 p-3 bg-green-500 text-white hover:bg-green-600"
           >
             Confirm Changes
           </button>
@@ -306,12 +308,8 @@ export default function Cart() {
           </button>
           {/* Recipe Suggestions */}
           <h1 className="text-2xl p-4 text-center">Recipe Suggestions</h1>
-          <div className="grid grid-cols-1 gap-4">
-            {recipeSuggestions.map((recipe, index) => (
-              <div key={index} className="bg-slate-800 p-4 rounded-lg">
-                <p className="text-white">{recipe}</p>
-              </div>
-            ))}
+          <div className="bg-slate-800 p-4 rounded-lg">
+            <p className="text-white">{recipeSuggestions}</p>
           </div>
           {/* Available items */}
           <h1 className="text-2xl p-4 text-center">Available Items</h1>

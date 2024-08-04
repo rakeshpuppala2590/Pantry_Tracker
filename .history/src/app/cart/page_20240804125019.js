@@ -294,7 +294,7 @@ export default function Cart() {
           )}
           <button
             onClick={confirmChanges}
-            className="mt-4 p-3 bg-green-500 text-white hover:bg-green-600 "
+            className="mt-4 p-3 bg-green-500 text-white hover:bg-green-600 items-center"
           >
             Confirm Changes
           </button>

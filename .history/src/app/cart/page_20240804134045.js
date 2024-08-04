@@ -16,7 +16,7 @@ import {
 } from "firebase/firestore";
 import dayjs from "dayjs";
 import { Button } from "@mui/material";
-import fetchRecipeSuggestions from "src/app/cart/recipe.js"; // Adjust the import path accordingly
+import fetchRecipeSuggestions from "/Users/rakeshpuppala/pantry/src/app/cart/recipe.js"; // Adjust the import path accordingly
 
 export default function Cart() {
   const [items, setItems] = useState([]);
